@@ -86,6 +86,12 @@ int main() {
         {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2},
         {4,4,4,4,4,4,4,4,4,4,1,1,1,2,2,2,2,2,2,3,3,3,3,3}
     };
+    /* missing texture */
+    ColorRGB missing_tex_arr[4] = {COLOR_MAGENTA, COLOR_BLACK, COLOR_BLACK, COLOR_MAGENTA};
+    Texture tex_missing = {2,2, missing_tex_arr};
+    /*tex_missing.width = 2;
+    tex_missing.height = 2;
+    tex_missing.data = {COLOR_MAGENTA, COLOR_BLACK, COLOR_BLACK, COLOR_MAGENTA};*/
 
     struct worldMap_s map;
     map.width = 24;
@@ -163,8 +169,9 @@ int main() {
                 perpWallDist = (mapY - camera.pos.y.dval + (1 - ray.step.y.ival) / 2) / ray.dir.y.dval;
             */
             ray_cast(&camera, &map, &ray);
+            /* CAUTION can be larger than screen y size */
             int lineHeight = (int)(YSIZE / ray.result.distance);
-
+            
             /* calculate the lowest and highest pixel */
             int drawStart = -lineHeight / 2 + (YSIZE / 2) + camera.angle_v * (YSIZE / 2);
             if(drawStart >= YSIZE) drawStart = YSIZE - 1;
@@ -178,24 +185,56 @@ int main() {
                 continue;
 
             /* choose wall color */
-            ColorRGB color;
+            /*ColorRGB color;
             switch(*(int*)ray.result.hit)
             {
-              case 1:  color = COLOR_RED;    break; /* red */
-              case 2:  color = COLOR_GREEN;  break; /* green */
-              case 3:  color = COLOR_BLUE;   break; /* blue */
-              case 4:  color = COLOR_WHITE;  break; /* white */
-              default: color = COLOR_YELLOW; break; /* yellow */
-            }
+              case 1:  color = COLOR_RED;    break;
+              case 2:  color = COLOR_GREEN;  break;
+              case 3:  color = COLOR_BLUE;   break;
+              case 4:  color = COLOR_WHITE;  break;
+              default: color = COLOR_YELLOW; break;
+            } */
+
             /* give x and y sides a diferent color*/
-            if (ray.side == 1)
-                color = (ColorRGB){color.r /2, color.g /2, color.b /2};
+            Texture tex;
+            switch(*(int*)ray.result.hit)
+            {
+                default: tex = tex_missing;
+            }
+            ColorRGB color;
+            double wallX;
+            if (ray.side) wallX = camera.pos.x.dval + ray.result.distance * ray.dir.x.dval;
+            else wallX = camera.pos.y.dval + ray.result.distance * ray.dir.y.dval;
+            wallX -= (int)wallX;
+
+            int texX = (int)(wallX * (double)tex.width);
+            if(ray.side == 0 && ray.dir.x.dval > 0) texX = tex.width - texX -1;
+            if(ray.side == 1 && ray.dir.y.dval < 0) texX = tex.width - texX -1;
+            
+            /* map a pixel of the texture to a line on the screen */
+            double line_tex_ratio =  1.0 * lineHeight/tex.height;
+            double draw_tex_ratio = 1.0 * (drawEnd - drawStart) / tex.height;
+            int k;
+            for(k=0;k<tex.height;k++) {
+                /* TODO make it so that the color scales with the line */
+                color = tex.data[k + texX * tex.width];
+                /* darken the N/S sides */
+                if (ray.side == 1)
+                    color = (ColorRGB){
+                        color.r != 0 ? color.r /2: 0,
+                        color.g != 0 ? color.g /2: 0,
+                        color.b != 0 ? color.b /2: 0};
+                SDL_SetRenderDrawColor(sdl_renderer, color.r, color.g, color.b, SDL_ALPHA_OPAQUE);
+                SDL_RenderDrawLine(sdl_renderer, i, 
+                        (drawStart + draw_tex_ratio * k),
+                        i,
+                        (drawStart + draw_tex_ratio * (k+1)));
+            }
             /* replace
             gfx_color(color.r,color.g,color.b);
             gfx_line(i, drawStart, i, drawEnd); */
-            SDL_SetRenderDrawColor(sdl_renderer, color.r, color.g, color.b, SDL_ALPHA_OPAQUE);
 
-            SDL_RenderDrawLine(sdl_renderer, i, drawStart, i, drawEnd);
+            /* SDL_RenderDrawLine(sdl_renderer, i, drawStart, i, drawEnd); */
          }
         SDL_RenderPresent(sdl_renderer);
 
