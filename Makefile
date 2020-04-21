@@ -25,3 +25,4 @@ $(BUILD_DIR)/%.o: %.c
 
 clean:
 	rm -rf $(BUILD_DIR)
+	rm -f $(SDL_OUT)
