@@ -1,4 +1,4 @@
-SOURCE	= main.c raycast.c texture.c
+SOURCE	= main.c raycast.c
 HEADER	= common.h raycast.h texture.h
 CC	 = gcc -std=c89 -ansi
 FLAGS	 = -g -c -Wall
@@ -7,7 +7,7 @@ BUILD_DIR = build
 MKDIR_P = mkdir -p
 
 SDL_OUT	= ray_sdl
-_SDL_OBJS = main_sdl.o raycast.o texture.o
+_SDL_OBJS = main_sdl.o raycast.o
 SDL_OBJS = $(patsubst %,$(BUILD_DIR)/%,$(_SDL_OBJS))
 
 

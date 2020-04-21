@@ -54,10 +54,7 @@ void ray_cast(struct camera_s *camera, struct worldMap_s *map, struct ray_s *ray
         if (ray->side_dist.x.dval < ray->side_dist.y.dval)
         {
           ray->side_dist.x.dval += ray->delta_dist.x.dval;
-          mapX += ray->step.x.ival;
-          ray->side = 0;
-        }
-        else
+          mapX += ray->step.x.ival; ray->side = 0; } else
         {
           ray->side_dist.y.dval += ray->delta_dist.y.dval;
           mapY += ray->step.y.ival;
@@ -78,7 +75,13 @@ void ray_cast(struct camera_s *camera, struct worldMap_s *map, struct ray_s *ray
     ray->result.distance = perpWallDist;
 }
 
+/* TODO optimise by writing to a buffer and then copying the buffer to the screen */
 void raycast_render(int screen_width, int screen_height, struct camera_s *camera, SDL_Renderer *sdl_renderer,struct worldMap_s *map, Texture *tex_missing){
+
+    /* declared in main */
+    extern Texture *textures;
+    extern int nb_tex;
+
     int i;
     for(i=0; i<screen_width; i++) {
         struct ray_s ray;
@@ -102,11 +105,14 @@ void raycast_render(int screen_width, int screen_height, struct camera_s *camera
 
         /* give x and y sides a diferent color*/
         Texture tex;
-        switch(*(int*)ray.result.hit)
-        {
-            default: tex = *tex_missing;
+        if(*(int*)ray.result.hit > nb_tex) {
+            tex = *tex_missing;
         }
-        ColorRGB color;
+        else {
+            /* shift the walls by one so that wall 1 uses texture 0 */
+            tex = textures[*(int*)ray.result.hit -1];
+        }
+        ColorARGB color;
         double wallX;
         if (ray.side) wallX = camera->pos.x.dval + ray.result.distance * ray.dir.x.dval;
         else wallX = camera->pos.y.dval + ray.result.distance * ray.dir.y.dval;
@@ -127,11 +133,12 @@ void raycast_render(int screen_width, int screen_height, struct camera_s *camera
             texPos += step_t;
             color = tex.data[texY + texX * tex.width];
             if (ray.side == 1)
-                color = (ColorRGB){
-                    color.r != 0 ? color.r /2: 0,
-                    color.g != 0 ? color.g /2: 0,
-                    color.b != 0 ? color.b /2: 0};
-            SDL_SetRenderDrawColor(sdl_renderer, color.r, color.g, color.b, SDL_ALPHA_OPAQUE);
+                color = (ColorARGB){{
+                    255,
+                    color.data.r != 0 ? color.data.r /2: 0,
+                    color.data.g != 0 ? color.data.g /2: 0,
+                    color.data.b != 0 ? color.data.b /2: 0}};
+            SDL_SetRenderDrawColor(sdl_renderer, color.data.r, color.data.g, color.data.b, color.data.a);
             SDL_RenderDrawPoint(sdl_renderer, i, k);
         }
     }

@@ -7,6 +7,7 @@
 #include <SDL2/SDL.h>
 
 #include "raycast.h"
+#include "common.h"
 #include "texture.h"
 
 #define MS_TO_US(x) (x*1000)
@@ -21,16 +22,9 @@
 #define XTEX 32
 #define YTEX 32
 
-int usleep(double usec) {
-        struct timespec req, rem;
-        int r;
+Texture *textures;
+int nb_tex = 0;
 
-        req.tv_sec = 0;
-        req.tv_nsec = usec * 1000;
-        while((r = nanosleep(&req, &rem)) == -1)
-                req = rem;
-        return r;
-}
 int main() {
     int time, old_time;
     /* prevent freeze on load */
@@ -62,9 +56,9 @@ int main() {
         {4,4,4,4,4,4,4,4,4,4,1,1,1,2,2,2,2,2,2,3,3,3,3,3}
     };
     /* missing texture */
-    ColorRGB missing_tex_arr[4] = {
-        COLOR_MAGENTA, COLOR_BLACK,
-        COLOR_BLACK, COLOR_MAGENTA
+    ColorARGB missing_tex_arr[4] = {
+        COLOR_AMAGENTA, COLOR_ABLACK,
+        COLOR_ABLACK, COLOR_AMAGENTA
     };
     Texture tex_missing = {2,2, missing_tex_arr};
 
@@ -112,6 +106,7 @@ int main() {
 
     for(;;) {
         /* clean */
+        /* 255 is opaque */
         SDL_SetRenderDrawColor(sdl_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderClear(sdl_renderer);
         /* render */
@@ -134,13 +129,13 @@ int main() {
         /* the constant value is in squares/second */
         double moveSpeed = frameTime * 4.0;
         /* the constant value is in radians/second */
-        double rotSpeed = frameTime * 0.8;
-        double VrotSpeed = frameTime * 0.5;
+        double rotSpeed = frameTime * 1.0;
+        double VrotSpeed = frameTime * 0.2;
 
         printf("V angle %f\n", camera.angle_v);
         printf("X: %f, Y: %f\n", camera.pos.x.dval, camera.pos.y.dval);
         printf("plane X: %f, plane Y: %f\n", camera.plane.x.dval, camera.plane.y.dval);
-        printf("FPS: %d\n", time-old_time);
+        printf("FPS: %f\n", 1.0 / frameTime);
         printf("dirx %f\n", camera.dir.x.dval);
         printf("diry %f\n", camera.dir.y.dval);
         
