@@ -31,9 +31,10 @@ int usleep(double usec) {
                 req = rem;
         return r;
 }
-double angle;
 int main() {
     int time, old_time;
+    /* prevent freeze on load */
+    time = SDL_GetTicks();
     int data[24][24] = {
         {4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7},
         {4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7},
@@ -113,70 +114,16 @@ int main() {
         /* clean */
         SDL_SetRenderDrawColor(sdl_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderClear(sdl_renderer);
-        int i;
-        for(i=0; i<XSIZE; i++) {
-            struct ray_s ray;
-            ray_init(i, XSIZE, &camera, &ray);
+        /* render */
+        raycast_render(XSIZE, YSIZE, &camera, sdl_renderer, &map, &tex_missing);
 
-            ray_cast(&camera, &map, &ray);
-            /* CAUTION can be larger than screen y size */
-            int lineHeight = (int)(YSIZE / ray.result.distance);
-            
-            /* calculate the lowest and highest pixel */
-            int drawStart = -lineHeight / 2 + (YSIZE / 2) + camera.angle_v * (YSIZE / 2);
-            if(drawStart >= YSIZE) drawStart = YSIZE - 1;
-            if(drawStart < 0) drawStart = 0;
-            int drawEnd = lineHeight / 2 + (YSIZE / 2) + camera.angle_v * (YSIZE / 2);
-            if(drawEnd >= YSIZE) drawEnd = YSIZE - 1;
-            if(drawEnd < 0)drawEnd = 0;
-
-            /* if drawStart and drawEnd are the same dont draw anything */
-            if(drawEnd == drawStart)
-                continue;
-
-            /* give x and y sides a diferent color*/
-            Texture tex;
-            switch(*(int*)ray.result.hit)
-            {
-                default: tex = tex_missing;
-            }
-            ColorRGB color;
-            double wallX;
-            if (ray.side) wallX = camera.pos.x.dval + ray.result.distance * ray.dir.x.dval;
-            else wallX = camera.pos.y.dval + ray.result.distance * ray.dir.y.dval;
-            wallX -= floor(wallX);
-
-            int texX = (int)(wallX * (double)tex.width);
-            if(ray.side == 0 && ray.dir.x.dval > 0) texX = tex.width - texX -1;
-            if(ray.side == 1 && ray.dir.y.dval < 0) texX = tex.width - texX -1;
-            
-            /* TODO fix the texture moving with the camera */
-            double step_t = 1.0 * tex.height / lineHeight;
-
-            double texPos = ((drawStart - YSIZE / 2 + lineHeight / 2) - camera.angle_v * (YSIZE / 2)) * step_t;
-            int k;
-            for(k=drawStart; k<drawEnd; k++)
-            {
-                int texY = (int)texPos & (tex.height-1);
-                texPos += step_t;
-                color = tex.data[texY + texX * tex.width];
-                if (ray.side == 1)
-                    color = (ColorRGB){
-                        color.r != 0 ? color.r /2: 0,
-                        color.g != 0 ? color.g /2: 0,
-                        color.b != 0 ? color.b /2: 0};
-                SDL_SetRenderDrawColor(sdl_renderer, color.r, color.g, color.b, SDL_ALPHA_OPAQUE);
-                SDL_RenderDrawPoint(sdl_renderer, i, k);
-            }
-         }
         SDL_RenderPresent(sdl_renderer);
-
-        
 
         old_time = time;
         time = SDL_GetTicks();
         /* frameTime is the time this frame has taken, in seconds */
         double frameTime = (time - old_time) / 1000.0;
+
         /* fix the fps */
         if (FRAMEDELAY > time - old_time) {
             SDL_Delay(FRAMEDELAY - (time - old_time));
@@ -193,7 +140,7 @@ int main() {
         printf("V angle %f\n", camera.angle_v);
         printf("X: %f, Y: %f\n", camera.pos.x.dval, camera.pos.y.dval);
         printf("plane X: %f, plane Y: %f\n", camera.plane.x.dval, camera.plane.y.dval);
-        printf("FPS: %f\n", 1.0 / frameTime);
+        printf("FPS: %d\n", time-old_time);
         printf("dirx %f\n", camera.dir.x.dval);
         printf("diry %f\n", camera.dir.y.dval);
         

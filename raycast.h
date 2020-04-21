@@ -2,6 +2,8 @@
 #define RAYCAST_H 1
 
 #include "common.h"
+#include "texture.h"
+#include <SDL2/SDL.h>
 
 union num_u {
     double dval;
@@ -42,4 +44,7 @@ void ray_init(int x, int screen_height, struct camera_s* camera, struct ray_s* r
 
 /* cast the ray and fill the result */
 void ray_cast(struct camera_s *camera, struct worldMap_s *map, struct ray_s *ray);
+
+/* render using a raycaster */
+void raycast_render(int screen_height, int screen_width, struct camera_s *camera, SDL_Renderer *sdl_renderer,struct worldMap_s *map, Texture *tex_missing);
 #endif
