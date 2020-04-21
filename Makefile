@@ -14,6 +14,9 @@ SDL_OBJS = $(patsubst %,$(BUILD_DIR)/%,$(_SDL_OBJS))
 sdl: $(SDL_OBJS)
 	$(CC) -g $(SDL_OBJS) -o $(SDL_OUT) $(LFLAGS) -lSDL2
 
+rel: $(SDL_OBJS)
+	$(CC) -O3 $(SDL_OBJS) -o $(SDL_OUT) $(LFLAGS) -lSDL2
+
 $(BUILD_DIR)/%.o: %.c
 	$(MKDIR_P) $(BUILD_DIR)
 	$(MKDIR_P) $(BUILD_DIR)/lib

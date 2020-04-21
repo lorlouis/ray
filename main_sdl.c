@@ -16,7 +16,7 @@
 
 #define XSIZE 640
 #define YSIZE 480
-#define FRAMEDELAY 0.016
+#define FRAMEDELAY 16
 
 #define XTEX 32
 #define YTEX 32
@@ -31,35 +31,9 @@ int usleep(double usec) {
                 req = rem;
         return r;
 }
-
+double angle;
 int main() {
     int time, old_time;
-    /*int data[24][24] = {
-        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,2,2,2,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-        {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,3,0,0,0,3,0,0,0,1},
-        {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,2,2,0,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,4,0,0,0,0,5,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,4,0,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
-    };*/
     int data[24][24] = {
         {4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7},
         {4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7},
@@ -87,11 +61,11 @@ int main() {
         {4,4,4,4,4,4,4,4,4,4,1,1,1,2,2,2,2,2,2,3,3,3,3,3}
     };
     /* missing texture */
-    ColorRGB missing_tex_arr[4] = {COLOR_MAGENTA, COLOR_BLACK, COLOR_BLACK, COLOR_MAGENTA};
+    ColorRGB missing_tex_arr[4] = {
+        COLOR_MAGENTA, COLOR_BLACK,
+        COLOR_BLUE, COLOR_MAGENTA
+    };
     Texture tex_missing = {2,2, missing_tex_arr};
-    /*tex_missing.width = 2;
-    tex_missing.height = 2;
-    tex_missing.data = {COLOR_MAGENTA, COLOR_BLACK, COLOR_BLACK, COLOR_MAGENTA};*/
 
     struct worldMap_s map;
     map.width = 24;
@@ -100,7 +74,7 @@ int main() {
 
     struct camera_s camera;
     camera.pos.x.dval = 22;
-    camera.pos.y.dval = 12;
+    camera.pos.y.dval = 11.5;
     camera.dir.x.dval = -1;
     camera.dir.y.dval = 0;
 
@@ -142,32 +116,8 @@ int main() {
         int i;
         for(i=0; i<XSIZE; i++) {
             struct ray_s ray;
-            ray_init(i, YSIZE, &camera, &ray);
+            ray_init(i, XSIZE, &camera, &ray);
 
-            /* int mapX = (int)camera.pos.x.dval;
-            int mapY = (int)camera.pos.y.dval;
-            while (ray.hit == 0)
-            {
-              if (ray.side_dist.x.dval < ray.side_dist.y.dval)
-              {
-                ray.side_dist.x.dval += ray.delta_dist.x.dval;
-                mapX += ray.step.x.ival;
-                ray.side = 0;
-              }
-              else
-              {
-                ray.side_dist.y.dval += ray.delta_dist.y.dval;
-                mapY += ray.step.y.ival;
-                ray.side = 1;
-              }
-              if(map.data[mapX*map.width + mapY] > 0) ray.hit = 1;
-            } 
-            double perpWallDist;
-            if(ray.side == 0)
-                perpWallDist = (mapX - camera.pos.x.dval + (1 - ray.step.x.ival) / 2) / ray.dir.x.dval;
-            else 
-                perpWallDist = (mapY - camera.pos.y.dval + (1 - ray.step.y.ival) / 2) / ray.dir.y.dval;
-            */
             ray_cast(&camera, &map, &ray);
             /* CAUTION can be larger than screen y size */
             int lineHeight = (int)(YSIZE / ray.result.distance);
@@ -184,17 +134,6 @@ int main() {
             if(drawEnd == drawStart)
                 continue;
 
-            /* choose wall color */
-            /*ColorRGB color;
-            switch(*(int*)ray.result.hit)
-            {
-              case 1:  color = COLOR_RED;    break;
-              case 2:  color = COLOR_GREEN;  break;
-              case 3:  color = COLOR_BLUE;   break;
-              case 4:  color = COLOR_WHITE;  break;
-              default: color = COLOR_YELLOW; break;
-            } */
-
             /* give x and y sides a diferent color*/
             Texture tex;
             switch(*(int*)ray.result.hit)
@@ -205,36 +144,30 @@ int main() {
             double wallX;
             if (ray.side) wallX = camera.pos.x.dval + ray.result.distance * ray.dir.x.dval;
             else wallX = camera.pos.y.dval + ray.result.distance * ray.dir.y.dval;
-            wallX -= (int)wallX;
+            wallX -= floor(wallX);
 
             int texX = (int)(wallX * (double)tex.width);
             if(ray.side == 0 && ray.dir.x.dval > 0) texX = tex.width - texX -1;
             if(ray.side == 1 && ray.dir.y.dval < 0) texX = tex.width - texX -1;
             
-            /* map a pixel of the texture to a line on the screen */
-            double line_tex_ratio =  1.0 * lineHeight/tex.height;
-            double draw_tex_ratio = 1.0 * (drawEnd - drawStart) / tex.height;
+            /* TODO fix the texture moving with the camera */
+            double step_t = 1.0 * tex.height / lineHeight;
+
+            double texPos = ((drawStart - YSIZE / 2 + lineHeight / 2) - camera.angle_v * (YSIZE / 2)) * step_t;
             int k;
-            for(k=0;k<tex.height;k++) {
-                /* TODO make it so that the color scales with the line */
-                color = tex.data[k + texX * tex.width];
-                /* darken the N/S sides */
+            for(k=drawStart; k<drawEnd; k++)
+            {
+                int texY = (int)texPos & (tex.height-1);
+                texPos += step_t;
+                color = tex.data[texY + texX * tex.width];
                 if (ray.side == 1)
                     color = (ColorRGB){
                         color.r != 0 ? color.r /2: 0,
                         color.g != 0 ? color.g /2: 0,
                         color.b != 0 ? color.b /2: 0};
                 SDL_SetRenderDrawColor(sdl_renderer, color.r, color.g, color.b, SDL_ALPHA_OPAQUE);
-                SDL_RenderDrawLine(sdl_renderer, i, 
-                        (drawStart + draw_tex_ratio * k),
-                        i,
-                        (drawStart + draw_tex_ratio * (k+1)));
+                SDL_RenderDrawPoint(sdl_renderer, i, k);
             }
-            /* replace
-            gfx_color(color.r,color.g,color.b);
-            gfx_line(i, drawStart, i, drawEnd); */
-
-            /* SDL_RenderDrawLine(sdl_renderer, i, drawStart, i, drawEnd); */
          }
         SDL_RenderPresent(sdl_renderer);
 
@@ -244,16 +177,18 @@ int main() {
         time = SDL_GetTicks();
         /* frameTime is the time this frame has taken, in seconds */
         double frameTime = (time - old_time) / 1000.0;
-        
-        if(FRAMEDELAY > frameTime) {
-            SDL_Delay(FRAMEDELAY - frameTime);
-            frameTime = FRAMEDELAY;
+        /* fix the fps */
+        if (FRAMEDELAY > time - old_time) {
+            SDL_Delay(FRAMEDELAY - (time - old_time));
+            frameTime = FRAMEDELAY / 1000.0;
         }
 
+
         /* the constant value is in squares/second */
-        double moveSpeed = frameTime * 0.1;
+        double moveSpeed = frameTime * 5.0;
         /* the constant value is in radians/second */
-        double rotSpeed = frameTime * 0.2;
+        double rotSpeed = frameTime * 1.5;
+        double VrotSpeed = frameTime * 0.5;
 
         printf("V angle %f\n", camera.angle_v);
         printf("X: %f, Y: %f\n", camera.pos.x.dval, camera.pos.y.dval);
@@ -261,11 +196,13 @@ int main() {
         printf("FPS: %f\n", 1.0 / frameTime);
         printf("dirx %f\n", camera.dir.x.dval);
         printf("diry %f\n", camera.dir.y.dval);
-        printf("mouse %d\n", MOUSE_DIR);
-
+        
+        /* place the old values outside of the loop
+         * becaused it caused a race condition */
         double oldDirX = camera.dir.x.dval;
+        double oldDirY = camera.dir.y.dval;
         double oldPlaneX = camera.plane.x.dval;
-
+        double oldPlaneY = camera.plane.y.dval;
         SDL_Event events;
         while(SDL_PollEvent(&events)) {
             switch(events.type) {
@@ -281,12 +218,12 @@ int main() {
                     }
                     break;
                 case SDL_MOUSEMOTION:
-                    camera.dir.x.dval = camera.dir.x.dval * cos(-rotSpeed * events.motion.xrel) - camera.dir.y.dval * sin(-rotSpeed * events.motion.xrel);
-                    camera.dir.y.dval = oldDirX * sin(-rotSpeed * events.motion.xrel) + camera.dir.y.dval * cos(-rotSpeed * events.motion.xrel);
-                    camera.plane.x.dval = camera.plane.x.dval * cos(-rotSpeed * events.motion.xrel) - camera.plane.y.dval * sin(-rotSpeed * events.motion.xrel);
-                    camera.plane.y.dval = oldPlaneX * sin(-rotSpeed * events.motion.xrel) + camera.plane.y.dval * cos(-rotSpeed * events.motion.xrel);
+                    camera.dir.x.dval = oldDirX * cos(-rotSpeed * events.motion.xrel) - oldDirY * sin(-rotSpeed * events.motion.xrel);
+                    camera.dir.y.dval = oldDirX * sin(-rotSpeed * events.motion.xrel) + oldDirY * cos(-rotSpeed * events.motion.xrel);
+                    camera.plane.x.dval = oldPlaneX * cos(-rotSpeed * events.motion.xrel) - oldPlaneY * sin(-rotSpeed * events.motion.xrel);
+                    camera.plane.y.dval = oldPlaneX * sin(-rotSpeed * events.motion.xrel) + oldPlaneY * cos(-rotSpeed * events.motion.xrel);
                     /* change the camera's yaw */
-                    camera.angle_v += rotSpeed * events.motion.yrel * MOUSE_DIR;
+                    camera.angle_v += VrotSpeed * events.motion.yrel * MOUSE_DIR;
                 break;
             }
         }

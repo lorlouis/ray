@@ -2,9 +2,9 @@
 #include "raycast.h"
 #include "common.h"
 
-void ray_init(int x, int screen_height, struct camera_s* camera, struct ray_s* ray) {
+void ray_init(int x, int screen_width, struct camera_s* camera, struct ray_s* ray) {
     /* calculate ray pos and dir */
-    double cameraX = 2 * x / (double)screen_height-1;
+    double cameraX = 2 * x / (double)screen_width-1;
     /* ray init */
     ray->dir.x.dval = camera->dir.x.dval + camera->plane.x.dval * cameraX;
     ray->dir.y.dval = camera->dir.y.dval + camera->plane.y.dval * cameraX;
