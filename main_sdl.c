@@ -63,7 +63,7 @@ int main() {
     /* missing texture */
     ColorRGB missing_tex_arr[4] = {
         COLOR_MAGENTA, COLOR_BLACK,
-        COLOR_BLUE, COLOR_MAGENTA
+        COLOR_BLACK, COLOR_MAGENTA
     };
     Texture tex_missing = {2,2, missing_tex_arr};
 
@@ -185,9 +185,9 @@ int main() {
 
 
         /* the constant value is in squares/second */
-        double moveSpeed = frameTime * 5.0;
+        double moveSpeed = frameTime * 4.0;
         /* the constant value is in radians/second */
-        double rotSpeed = frameTime * 1.5;
+        double rotSpeed = frameTime * 0.8;
         double VrotSpeed = frameTime * 0.5;
 
         printf("V angle %f\n", camera.angle_v);
@@ -233,21 +233,21 @@ int main() {
 
         const unsigned char *state = SDL_GetKeyboardState(0);
         if(state[SDL_SCANCODE_W]) {
-            if(map.data[(int)(camera.pos.x.dval + camera.dir.x.dval * moveSpeed)* map.width + (int)camera.pos.y.dval] == 0)
+            if(map.data[(int)(camera.pos.x.dval + camera.dir.x.dval * (moveSpeed + 0.1))* map.width + (int)camera.pos.y.dval] == 0)
                 camera.pos.x.dval += camera.dir.x.dval * moveSpeed;
-            if(map.data[(int)camera.pos.x.dval * map.width + (int)(camera.pos.y.dval + camera.dir.y.dval * moveSpeed)] == 0)
+            if(map.data[(int)camera.pos.x.dval * map.width + (int)(camera.pos.y.dval + camera.dir.y.dval * (moveSpeed + 0.1))] == 0)
                 camera.pos.y.dval += camera.dir.y.dval * moveSpeed;
         }
         if(state[SDL_SCANCODE_S]) {
-            if(map.data[(int)(camera.pos.x.dval - camera.dir.x.dval * moveSpeed)* map.width + (int)camera.pos.y.dval] == 0)
+            if(map.data[(int)(camera.pos.x.dval - camera.dir.x.dval * (moveSpeed + 0.1))* map.width + (int)camera.pos.y.dval] == 0)
                 camera.pos.x.dval -= camera.dir.x.dval * moveSpeed;
-            if(map.data[(int)camera.pos.x.dval * map.width + (int)(camera.pos.y.dval - camera.dir.y.dval * moveSpeed)] == 0)
+            if(map.data[(int)camera.pos.x.dval * map.width + (int)(camera.pos.y.dval - camera.dir.y.dval * (moveSpeed + 0.1))] == 0)
                 camera.pos.y.dval -= camera.dir.y.dval * moveSpeed;
         }
         if(state[SDL_SCANCODE_D]) {
-            if(map.data[(int)(camera.pos.x.dval + camera.dir.y.dval * moveSpeed)* map.width + (int)camera.pos.y.dval] == 0)
+            if(map.data[(int)(camera.pos.x.dval + camera.dir.y.dval * (moveSpeed + 0.1))* map.width + (int)camera.pos.y.dval] == 0)
                 camera.pos.x.dval += camera.dir.y.dval * moveSpeed;
-            if(map.data[(int)camera.pos.x.dval * map.width + (int)(camera.pos.y.dval - camera.dir.x.dval * moveSpeed)] == 0)
+            if(map.data[(int)camera.pos.x.dval * map.width + (int)(camera.pos.y.dval - camera.dir.x.dval * (moveSpeed + 0.1))] == 0)
                 camera.pos.y.dval -= camera.dir.x.dval * moveSpeed;
         }
         if(state[SDL_SCANCODE_A]) {
