@@ -22,8 +22,18 @@
 #define XTEX 32
 #define YTEX 32
 
+/* missing texture */
+ColorARGB missing_tex_arr[4] = {
+    COLOR_AMAGENTA, COLOR_ABLACK,
+    COLOR_ABLACK, COLOR_AMAGENTA
+};
+Texture tex_missing = {2,2, missing_tex_arr};
+/* an array of loaded textures */
 Texture *textures;
 int nb_tex = 0;
+
+/* screen buffer */
+ColorARGB pixels[XSIZE * YSIZE] = {0};
 
 int main() {
     int time, old_time;
@@ -55,12 +65,6 @@ int main() {
         {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2},
         {4,4,4,4,4,4,4,4,4,4,1,1,1,2,2,2,2,2,2,3,3,3,3,3}
     };
-    /* missing texture */
-    ColorARGB missing_tex_arr[4] = {
-        COLOR_AMAGENTA, COLOR_ABLACK,
-        COLOR_ABLACK, COLOR_AMAGENTA
-    };
-    Texture tex_missing = {2,2, missing_tex_arr};
 
     struct worldMap_s map;
     map.width = 24;
@@ -79,6 +83,7 @@ int main() {
 
     /* init win and texture*/
     SDL_Window *sdl_window = 0;
+    SDL_Texture *sdl_tex = 0;
     SDL_Renderer *sdl_renderer = 0;
     if(SDL_Init(SDL_INIT_VIDEO) < 0) {
         printf("SDL could not initialise:\n%s\n", SDL_GetError());
@@ -99,6 +104,16 @@ int main() {
         printf("renderer could no be created:\n%s\n", SDL_GetError());
         return 1;
     }
+
+    sdl_tex = SDL_CreateTexture(
+            sdl_renderer,
+            SDL_PIXELFORMAT_RGBA8888,
+            SDL_TEXTUREACCESS_STREAMING,
+            XSIZE, YSIZE);
+    if(!sdl_tex) {
+        printf("The screen texture buffer could not be instanciated:\n%s\n", SDL_GetError());
+        return 1;
+    }
     SDL_SetRelativeMouseMode(1);
     /* it is now safe to use the window */
 
@@ -107,11 +122,18 @@ int main() {
     for(;;) {
         /* clean */
         /* 255 is opaque */
-        SDL_SetRenderDrawColor(sdl_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-        SDL_RenderClear(sdl_renderer);
-        /* render */
-        raycast_render(XSIZE, YSIZE, &camera, sdl_renderer, &map, &tex_missing);
+        /* SDL_SetRenderDrawColor(sdl_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE); */
+        /* SDL_RenderClear(sdl_renderer);*/
+        /* clean the buffer */
+        memset(pixels, 0, sizeof(ColorARGB)*XSIZE*YSIZE);
 
+
+        /* render */
+        raycast_render_to_pixels_arr(XSIZE, YSIZE, &camera, pixels, &map);
+
+        /* raycast_render(XSIZE, YSIZE, &camera, sdl_renderer, &map); */
+        SDL_UpdateTexture(sdl_tex, NULL, pixels, 4*XSIZE);
+        SDL_RenderCopy(sdl_renderer, sdl_tex, NULL, NULL);
         SDL_RenderPresent(sdl_renderer);
 
         old_time = time;

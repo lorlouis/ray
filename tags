@@ -7,15 +7,15 @@
 !_TAG_PROGRAM_URL	https://ctags.io/	/official site/
 !_TAG_PROGRAM_VERSION	0.0.0	/a3c87ab5/
 $(BUILD_DIR)/%.o	Makefile	/^$(BUILD_DIR)\/%.o: %.c$/;"	t
-ACOLOR_BLACK	texture.h	/^#define ACOLOR_BLACK /;"	d
-ACOLOR_BLUE	texture.h	/^#define ACOLOR_BLUE /;"	d
-ACOLOR_GREEN	texture.h	/^#define ACOLOR_GREEN /;"	d
-ACOLOR_MAGENTA	texture.h	/^#define ACOLOR_MAGENTA /;"	d
-ACOLOR_RED	texture.h	/^#define ACOLOR_RED /;"	d
-ACOLOR_WHITE	texture.h	/^#define ACOLOR_WHITE /;"	d
-ACOLOR_YELLOW	texture.h	/^#define ACOLOR_YELLOW /;"	d
 BUILD_DIR	Makefile	/^BUILD_DIR = build$/;"	m
 CC	Makefile	/^CC	 = gcc -std=c89 -ansi$/;"	m
+COLOR_ABLACK	texture.h	/^#define COLOR_ABLACK /;"	d
+COLOR_ABLUE	texture.h	/^#define COLOR_ABLUE /;"	d
+COLOR_AGREEN	texture.h	/^#define COLOR_AGREEN /;"	d
+COLOR_AMAGENTA	texture.h	/^#define COLOR_AMAGENTA /;"	d
+COLOR_ARED	texture.h	/^#define COLOR_ARED /;"	d
+COLOR_AWHITE	texture.h	/^#define COLOR_AWHITE /;"	d
+COLOR_AYELLOW	texture.h	/^#define COLOR_AYELLOW /;"	d
 COLOR_BLACK	texture.h	/^#define COLOR_BLACK /;"	d
 COLOR_BLUE	texture.h	/^#define COLOR_BLUE /;"	d
 COLOR_GREEN	texture.h	/^#define COLOR_GREEN /;"	d
@@ -24,95 +24,79 @@ COLOR_RED	texture.h	/^#define COLOR_RED /;"	d
 COLOR_WHITE	texture.h	/^#define COLOR_WHITE /;"	d
 COLOR_YELLOW	texture.h	/^#define COLOR_YELLOW /;"	d
 COMMON_H	common.h	/^#define COMMON_H /;"	d
-ColorARGB	common.h	/^} ColorARGB;$/;"	t	typeref:union:ColorARGBs
-ColorARGBs	common.h	/^typedef union ColorARGBs {$/;"	u
+ColorARGB	common.h	/^} ColorARGB;$/;"	t	typeref:union:ColorARGB_s
+ColorARGB_s	common.h	/^typedef union ColorARGB_s {$/;"	u
 ColorRGB	common.h	/^} ColorRGB;$/;"	t	typeref:struct:ColorRGBs
 ColorRGBs	common.h	/^typedef struct ColorRGBs {$/;"	s
 FLAGS	Makefile	/^FLAGS	 = -g -c -Wall$/;"	m
 FRAMEDELAY	main_sdl.c	/^#define FRAMEDELAY /;"	d	file:
-GFX_H	lib/gfx.h	/^#define GFX_H$/;"	d
 HEADER	Makefile	/^HEADER	= common.h raycast.h texture.h$/;"	m
 LFLAGS	Makefile	/^LFLAGS	 = -lX11 -lm$/;"	m
 MKDIR_P	Makefile	/^MKDIR_P = mkdir -p$/;"	m
 MOUSE_DIR	main_sdl.c	/^#define MOUSE_DIR /;"	d	file:
 MS_TO_US	main_sdl.c	/^#define MS_TO_US(/;"	d	file:
+OPAQUE	texture.h	/^#define OPAQUE /;"	d
 RAYCAST_H	raycast.h	/^#define RAYCAST_H /;"	d
 SDL_OBJS	Makefile	/^SDL_OBJS = $(patsubst %,$(BUILD_DIR)\/%,$(_SDL_OBJS))$/;"	m
 SDL_OUT	Makefile	/^SDL_OUT	= ray_sdl$/;"	m
-SOURCE	Makefile	/^SOURCE	= main.c raycast.c texture.c$/;"	m
+SOURCE	Makefile	/^SOURCE	= main.c raycast.c$/;"	m
 TEXTURE_H	texture.h	/^#define TEXTURE_H /;"	d
+TRANSPARENT	texture.h	/^#define TRANSPARENT /;"	d
 Texture	texture.h	/^} Texture;$/;"	t	typeref:struct:texture_s
 XSIZE	main_sdl.c	/^#define XSIZE /;"	d	file:
 XTEX	main_sdl.c	/^#define XTEX /;"	d	file:
 YSIZE	main_sdl.c	/^#define YSIZE /;"	d	file:
 YTEX	main_sdl.c	/^#define YTEX /;"	d	file:
 _POSIX_C_SOURCE	main_sdl.c	/^#define _POSIX_C_SOURCE /;"	d	file:
-_SDL_OBJS	Makefile	/^_SDL_OBJS = main_sdl.o raycast.o texture.o$/;"	m
-__anon3fde68840108	common.h	/^    struct {$/;"	s	union:ColorARGBs
-a	common.h	/^        unsigned char a,r, g, b;$/;"	m	struct:ColorARGBs::__anon3fde68840108	typeref:typename:unsigned char
-a	common.h	/^    unsigned char a,r, g, b;$/;"	m	struct:ColorRGBs	typeref:typename:unsigned char
+_SDL_OBJS	Makefile	/^_SDL_OBJS = main_sdl.o raycast.o$/;"	m
+__anon3fde68840108	common.h	/^    struct {$/;"	s	union:ColorARGB_s
+a	common.h	/^        unsigned a, r, g, b;$/;"	m	struct:ColorARGB_s::__anon3fde68840108	typeref:typename:unsigned
 angle_v	raycast.h	/^    double angle_v;$/;"	m	struct:camera_s	typeref:typename:double
-b	common.h	/^        unsigned char a,r, g, b;$/;"	m	struct:ColorARGBs::__anon3fde68840108	typeref:typename:unsigned char
-b	common.h	/^    unsigned char a,r, g, b;$/;"	m	struct:ColorRGBs	typeref:typename:unsigned char
+b	common.h	/^        unsigned a, r, g, b;$/;"	m	struct:ColorARGB_s::__anon3fde68840108	typeref:typename:unsigned
+b	common.h	/^    unsigned char r, g, b;$/;"	m	struct:ColorRGBs	typeref:typename:unsigned char
 camera_s	raycast.h	/^struct camera_s {$/;"	s
 clean	Makefile	/^clean:$/;"	t
 data	common.h	/^    int *data;$/;"	m	struct:worldMap_s	typeref:typename:int *
-data	texture.h	/^    ColorRGB *data;$/;"	m	struct:texture_s	typeref:typename:ColorRGB *
+data	common.h	/^    }data;$/;"	m	union:ColorARGB_s	typeref:struct:ColorARGB_s::__anon3fde68840108
+data	texture.h	/^    ColorARGB *data;$/;"	m	struct:texture_s	typeref:typename:ColorARGB *
 delta_dist	raycast.h	/^            delta_dist,$/;"	m	struct:ray_s	typeref:struct:vec_2d_s
 dir	raycast.h	/^    struct  vec_2d_s dir,$/;"	m	struct:ray_s	typeref:struct:vec_2d_s
 dir	raycast.h	/^    struct vec_2d_s plane, pos, dir;$/;"	m	struct:camera_s	typeref:struct:vec_2d_s
 distance	raycast.h	/^    double distance;$/;"	m	struct:ray_result_s	typeref:typename:double
 dval	raycast.h	/^    double dval;$/;"	m	union:num_u	typeref:typename:double
-fields	common.h	/^    } fields;$/;"	m	union:ColorARGBs	typeref:struct:ColorARGBs::__anon3fde68840108
-g	common.h	/^        unsigned char a,r, g, b;$/;"	m	struct:ColorARGBs::__anon3fde68840108	typeref:typename:unsigned char
-g	common.h	/^    unsigned char a,r, g, b;$/;"	m	struct:ColorRGBs	typeref:typename:unsigned char
-gfx_clear	lib/gfx.c	/^void gfx_clear()$/;"	f	typeref:typename:void
-gfx_clear_color	lib/gfx.c	/^void gfx_clear_color( int r, int g, int b )$/;"	f	typeref:typename:void
-gfx_color	lib/gfx.c	/^void gfx_color( int r, int g, int b )$/;"	f	typeref:typename:void
-gfx_colormap	lib/gfx.c	/^static Colormap gfx_colormap;$/;"	v	typeref:typename:Colormap	file:
-gfx_current_display	lib/gfx.c	/^Display *gfx_current_display() {$/;"	f	typeref:typename:Display *
-gfx_current_window	lib/gfx.c	/^Window gfx_current_window() {$/;"	f	typeref:typename:Window
-gfx_display	lib/gfx.c	/^static Display *gfx_display=0;$/;"	v	typeref:typename:Display *	file:
-gfx_event_waiting	lib/gfx.c	/^int gfx_event_waiting()$/;"	f	typeref:typename:int
-gfx_fast_color_mode	lib/gfx.c	/^static int      gfx_fast_color_mode = 0;$/;"	v	typeref:typename:int	file:
-gfx_flush	lib/gfx.c	/^void gfx_flush()$/;"	f	typeref:typename:void
-gfx_gc	lib/gfx.c	/^static GC      gfx_gc;$/;"	v	typeref:typename:GC	file:
-gfx_get	lib/gfx.c	/^char gfx_get()$/;"	f	typeref:typename:char
-gfx_line	lib/gfx.c	/^void gfx_line( int x1, int y1, int x2, int y2 )$/;"	f	typeref:typename:void
-gfx_open	lib/gfx.c	/^void gfx_open( int width, int height, const char *title )$/;"	f	typeref:typename:void
-gfx_point	lib/gfx.c	/^void gfx_point( int x, int y )$/;"	f	typeref:typename:void
-gfx_wait	lib/gfx.c	/^char gfx_wait()$/;"	f	typeref:typename:char
-gfx_window	lib/gfx.c	/^static Window  gfx_window;$/;"	v	typeref:typename:Window	file:
-gfx_xpos	lib/gfx.c	/^int gfx_xpos()$/;"	f	typeref:typename:int
-gfx_ypos	lib/gfx.c	/^int gfx_ypos()$/;"	f	typeref:typename:int
+g	common.h	/^        unsigned a, r, g, b;$/;"	m	struct:ColorARGB_s::__anon3fde68840108	typeref:typename:unsigned
+g	common.h	/^    unsigned char r, g, b;$/;"	m	struct:ColorRGBs	typeref:typename:unsigned char
 height	common.h	/^    int width, height;$/;"	m	struct:worldMap_s	typeref:typename:int
 height	texture.h	/^    unsigned int width, height;$/;"	m	struct:texture_s	typeref:typename:unsigned int
 hit	raycast.h	/^    int side, hit;$/;"	m	struct:ray_s	typeref:typename:int
 hit	raycast.h	/^    void* hit;$/;"	m	struct:ray_result_s	typeref:typename:void *
 ival	raycast.h	/^    int ival;$/;"	m	union:num_u	typeref:typename:int
 main	main_sdl.c	/^int main() {$/;"	f	typeref:typename:int
+missing_tex_arr	main_sdl.c	/^ColorARGB missing_tex_arr[4] = {$/;"	v	typeref:typename:ColorARGB[4]
+nb_tex	main_sdl.c	/^int nb_tex = 0;$/;"	v	typeref:typename:int
 num_u	raycast.h	/^union num_u {$/;"	u
+pixels	main_sdl.c	/^ColorARGB pixels[XSIZE * YSIZE] = {0};$/;"	v	typeref:typename:ColorARGB[]
 plane	raycast.h	/^    struct vec_2d_s plane, pos, dir;$/;"	m	struct:camera_s	typeref:struct:vec_2d_s
 pos	raycast.h	/^    struct vec_2d_s plane, pos, dir;$/;"	m	struct:camera_s	typeref:struct:vec_2d_s
-r	common.h	/^        unsigned char a,r, g, b;$/;"	m	struct:ColorARGBs::__anon3fde68840108	typeref:typename:unsigned char
-r	common.h	/^    unsigned char a,r, g, b;$/;"	m	struct:ColorRGBs	typeref:typename:unsigned char
-raw	common.h	/^    unsigned int raw;$/;"	m	union:ColorARGBs	typeref:typename:unsigned int
+r	common.h	/^        unsigned a, r, g, b;$/;"	m	struct:ColorARGB_s::__anon3fde68840108	typeref:typename:unsigned
+r	common.h	/^    unsigned char r, g, b;$/;"	m	struct:ColorRGBs	typeref:typename:unsigned char
+raw	common.h	/^    uint32_t raw;$/;"	m	union:ColorARGB_s	typeref:typename:uint32_t
 ray_cast	raycast.c	/^void ray_cast(struct camera_s *camera, struct worldMap_s *map, struct ray_s *ray){$/;"	f	typeref:typename:void
 ray_init	raycast.c	/^void ray_init(int x, int screen_width, struct camera_s* camera, struct ray_s* ray) {$/;"	f	typeref:typename:void
 ray_result_s	raycast.h	/^struct ray_result_s {$/;"	s
 ray_s	raycast.h	/^struct ray_s {$/;"	s
-raycast_render_cam	raycast.c	/^void raycast_render_cam($/;"	f	typeref:typename:void
+raycast_render	raycast.c	/^void raycast_render(int screen_width, int screen_height, struct camera_s *camera, SDL_Renderer */;"	f	typeref:typename:void
+raycast_render_to_pixels_arr	raycast.c	/^void raycast_render_to_pixels_arr(int screen_width, int screen_height, struct camera_s *camera, /;"	f	typeref:typename:void
 rel	Makefile	/^rel: $(SDL_OBJS)$/;"	t
 result	raycast.h	/^    struct ray_result_s result;$/;"	m	struct:ray_s	typeref:struct:ray_result_s
-saved_xpos	lib/gfx.c	/^static int saved_xpos = 0;$/;"	v	typeref:typename:int	file:
-saved_ypos	lib/gfx.c	/^static int saved_ypos = 0;$/;"	v	typeref:typename:int	file:
 sdl	Makefile	/^sdl: $(SDL_OBJS)$/;"	t
 side	raycast.h	/^    int side, hit;$/;"	m	struct:ray_s	typeref:typename:int
 side	raycast.h	/^    int side;$/;"	m	struct:ray_result_s	typeref:typename:int
 side_dist	raycast.h	/^            side_dist,$/;"	m	struct:ray_s	typeref:struct:vec_2d_s
 step	raycast.h	/^            step;$/;"	m	struct:ray_s	typeref:struct:vec_2d_s
+tex_missing	main_sdl.c	/^Texture tex_missing = {2,2, missing_tex_arr};$/;"	v	typeref:typename:Texture
 texture_s	texture.h	/^typedef struct texture_s {$/;"	s
-usleep	main_sdl.c	/^int usleep(double usec) {$/;"	f	typeref:typename:int
+textures	main_sdl.c	/^Texture *textures;$/;"	v	typeref:typename:Texture *
 vec_2d_s	raycast.h	/^struct vec_2d_s {$/;"	s
 width	common.h	/^    int width, height;$/;"	m	struct:worldMap_s	typeref:typename:int
 width	texture.h	/^    unsigned int width, height;$/;"	m	struct:texture_s	typeref:typename:unsigned int

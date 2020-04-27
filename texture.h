@@ -28,6 +28,7 @@ typedef struct texture_s {
     ColorARGB *data;
 } Texture;
 
+extern Texture tex_missing;
 extern Texture *textures;
 extern int nb_tex;
 
