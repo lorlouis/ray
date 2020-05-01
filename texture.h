@@ -21,15 +21,23 @@
 #define TRANSPARENT 0
 #define OPAQUE 255
 
-#include "common.h"
+#include "SDL2/SDL.h"
 
+#include <stdint.h>
+
+/* ARGB8888 word order */
+typedef union ColorARGB_s {
+    struct {
+        unsigned char a, r, g, b;
+    } data;
+    uint32_t raw;
+} ColorARGB;
 typedef struct texture_s {
     unsigned int width, height;
     ColorARGB *data;
 } Texture;
 
-extern Texture tex_missing;
-extern Texture *textures;
-extern int nb_tex;
+extern SDL_Surface *tex_missing;
+extern SDL_Surface **textures;
 
 #endif

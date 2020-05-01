@@ -49,4 +49,6 @@ void ray_cast(struct camera_s *camera, struct worldMap_s *map, struct ray_s *ray
 void raycast_render(int screen_height, int screen_width, struct camera_s *camera, SDL_Renderer *sdl_renderer,struct worldMap_s *map);
 /* render to a pixel array */
 void raycast_render_to_pixels_arr(int screen_width, int screen_height, struct camera_s *camera, ColorARGB *pixels,struct worldMap_s *map);
+/* render floor and ceiling */
+void render_floor_and_ceiling_to_pixel_arr(int screenWidth, int screenHeight, struct camera_s *camera, ColorARGB *pixels,struct worldMap_s *map);
 #endif

@@ -12,10 +12,10 @@ SDL_OBJS = $(patsubst %,$(BUILD_DIR)/%,$(_SDL_OBJS))
 
 
 sdl: $(SDL_OBJS)
-	$(CC) -g $(SDL_OBJS) -o $(SDL_OUT) $(LFLAGS) -lSDL2
+	$(CC) -g $(SDL_OBJS) -o $(SDL_OUT) $(LFLAGS) -lSDL2 -lSDL2_image
 
 rel: $(SDL_OBJS)
-	$(CC) -O3 $(SDL_OBJS) -o $(SDL_OUT) $(LFLAGS) -lSDL2
+	$(CC) -O3 $(SDL_OBJS) -o $(SDL_OUT) $(LFLAGS) -lSDL2 -lSDL2_image
 
 $(BUILD_DIR)/%.o: %.c
 	$(MKDIR_P) $(BUILD_DIR)

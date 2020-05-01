@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 #include "raycast.h"
 #include "common.h"
@@ -22,15 +23,10 @@
 #define XTEX 32
 #define YTEX 32
 
-/* missing texture */
-ColorARGB missing_tex_arr[4] = {
-    COLOR_AMAGENTA, COLOR_ABLACK,
-    COLOR_ABLACK, COLOR_AMAGENTA
-};
-Texture tex_missing = {2,2, missing_tex_arr};
+SDL_Surface *tex_missing;
 /* an array of loaded textures */
-Texture *textures;
-int nb_tex = 0;
+
+SDL_Surface **textures;
 
 /* screen buffer */
 ColorARGB pixels[XSIZE * YSIZE] = {0};
@@ -40,36 +36,52 @@ int main() {
     /* prevent freeze on load */
     time = SDL_GetTicks();
     int data[24][24] = {
-        {4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7},
-        {4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7},
-        {4,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
-        {4,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
-        {4,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7},
-        {4,0,4,0,0,0,0,5,5,5,5,5,5,5,5,5,7,7,0,7,7,7,7,7},
-        {4,0,5,0,0,0,0,5,0,5,0,5,0,5,0,5,7,0,0,0,7,7,7,1},
-        {4,0,6,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8},
-        {4,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,7,7,1},
-        {4,0,8,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8},
-        {4,0,0,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,7,7,7,1},
-        {4,0,0,0,0,0,0,5,5,5,5,0,5,5,5,5,7,7,7,7,7,7,7,1},
-        {6,6,6,6,6,6,6,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6},
-        {8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4},
-        {6,6,6,6,6,6,0,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6},
-        {4,4,4,4,4,4,0,4,4,4,6,0,6,2,2,2,2,2,2,2,3,3,3,3},
-        {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2},
-        {4,0,0,0,0,0,0,0,0,0,0,0,6,2,0,0,5,0,0,2,0,0,0,2},
-        {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2},
-        {4,0,6,0,6,0,0,0,0,4,6,0,0,0,0,0,5,0,0,0,0,0,0,2},
-        {4,0,0,5,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2},
-        {4,0,6,0,6,0,0,0,0,4,6,0,6,2,0,0,5,0,0,2,0,0,0,2},
-        {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2},
-        {4,4,4,4,4,4,4,4,4,4,1,1,1,2,2,2,2,2,2,3,3,3,3,3}
+        {6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7},
+        {6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,7,-1,-1,-1,-1,-1,0,7},
+        {6,-1,1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,7},
+        {6,-1,6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,7},
+        {6,-1,6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,7,-1,-1,-1,-1,-1,-1,7},
+        {6,-1,6,-1,-1,-1,-1,6,6,6,6,6,6,6,6,6,7,7,-1,7,7,7,7,7},
+        {6,-1,6,-1,-1,-1,-1,6,-1,6,-1,6,-1,6,-1,6,7,-1,-1,-1,7,7,7,1},
+        {6,-1,6,-1,-1,-1,-1,6,-1,-1,-1,-1,-1,-1,-1,6,7,-1,-1,-1,-1,-1,-1,6},
+        {6,-1,7,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,7,7,7,1},
+        {6,-1,6,-1,-1,-1,-1,6,-1,-1,-1,-1,-1,-1,-1,6,7,-1,-1,-1,-1,-1,-1,6},
+        {6,-1,-1,-1,-1,-1,-1,6,-1,-1,-1,-1,-1,-1,-1,6,7,-1,-1,-1,7,7,7,1},
+        {6,-1,-1,-1,-1,-1,-1,6,6,6,6,-1,6,6,6,6,7,7,7,7,7,7,7,1},
+        {6,6,6,6,6,6,6,6,6,6,6,-1,6,6,6,6,6,6,6,6,6,6,6,6},
+        {6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,6},
+        {6,6,6,6,6,6,-1,6,6,6,6,-1,6,6,6,6,6,6,6,6,6,6,6,6},
+        {6,6,6,6,6,6,-1,6,6,6,6,-1,6,6,6,6,6,6,6,6,6,6,6,6},
+        {6,-1,-1,-1,-1,-1,-1,-1,-1,6,6,-1,6,6,-1,-1,-1,-1,-1,6,-1,-1,-1,6},
+        {6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,6,6,-1,-1,6,-1,-1,6,-1,-1,-1,6},
+        {6,-1,-1,-1,-1,-1,-1,-1,-1,6,6,-1,6,6,-1,-1,-1,-1,-1,6,6,-1,6,6},
+        {6,-1,6,-1,6,-1,-1,-1,-1,6,6,-1,-1,-1,-1,-1,6,-1,-1,-1,-1,-1,-1,6},
+        {6,-1,-1,6,-1,-1,-1,-1,-1,6,6,-1,6,6,-1,-1,-1,-1,-1,6,6,-1,6,6},
+        {6,-1,6,-1,6,-1,-1,-1,-1,6,6,-1,6,6,-1,-1,6,-1,-1,6,-1,-1,-1,6},
+        {6,-1,-1,-1,-1,-1,-1,-1,-1,6,6,-1,6,6,-1,-1,-1,-1,-1,6,-1,-1,-1,6},
+        {6,6,6,6,6,6,6,6,6,6,1,1,1,6,6,6,6,6,6,6,6,6,6,6}
+    };
+
+    char *walls[8] = {
+        "res/tex/door.png",
+        "none",
+        "none",
+        "none",
+        "none",
+        "res/tex/wall1.png",
+        "res/tex/wall2.png",
+        "none"
     };
 
     struct worldMap_s map;
     map.width = 24;
     map.height = 24;
     map.data = &data[0][0];
+    map.textures = walls;
+    map.nb_tex = 7;
+
+    /* TODO free this */
+    textures = malloc(sizeof(SDL_Surface*) * map.nb_tex);
 
     struct camera_s camera;
     camera.pos.x.dval = 22;
@@ -105,6 +117,7 @@ int main() {
         return 1;
     }
 
+
     sdl_tex = SDL_CreateTexture(
             sdl_renderer,
             SDL_PIXELFORMAT_RGBA8888,
@@ -114,6 +127,30 @@ int main() {
         printf("The screen texture buffer could not be instanciated:\n%s\n", SDL_GetError());
         return 1;
     }
+    tex_missing = IMG_Load("res/tex/missing.png");
+    if(!tex_missing) {
+        printf("Impossible to load missing texture");
+        return 1;
+    }
+    tex_missing = SDL_ConvertSurfaceFormat(
+            tex_missing,
+            SDL_PIXELFORMAT_RGBA8888, 0);
+    int t;
+    /* TODO load les texture */
+    for(t=0; t<map.nb_tex;t++) {
+        textures[t] = IMG_Load(map.textures[t]);
+        if(textures[t]) {
+            textures[t] = SDL_ConvertSurfaceFormat(
+                textures[t],
+                SDL_PIXELFORMAT_RGBA8888, 0);
+
+        }
+        else {
+            textures[t] = tex_missing;
+        }
+
+    }
+
     SDL_SetRelativeMouseMode(1);
     /* it is now safe to use the window */
 
@@ -124,11 +161,13 @@ int main() {
         /* 255 is opaque */
         /* SDL_SetRenderDrawColor(sdl_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE); */
         /* SDL_RenderClear(sdl_renderer);*/
+
         /* clean the buffer */
         memset(pixels, 0, sizeof(ColorARGB)*XSIZE*YSIZE);
 
 
         /* render */
+        render_floor_and_ceiling_to_pixel_arr(XSIZE, YSIZE, &camera, pixels, &map);
         raycast_render_to_pixels_arr(XSIZE, YSIZE, &camera, pixels, &map);
 
         /* raycast_render(XSIZE, YSIZE, &camera, sdl_renderer, &map); */
@@ -197,33 +236,40 @@ int main() {
 
         const unsigned char *state = SDL_GetKeyboardState(0);
         if(state[SDL_SCANCODE_W]) {
-            if(map.data[(int)(camera.pos.x.dval + camera.dir.x.dval * (moveSpeed + 0.1))* map.width + (int)camera.pos.y.dval] == 0)
+            if(map.data[(int)(camera.pos.x.dval + camera.dir.x.dval * (moveSpeed + 0.1))* map.width + (int)camera.pos.y.dval] < 1)
                 camera.pos.x.dval += camera.dir.x.dval * moveSpeed;
-            if(map.data[(int)camera.pos.x.dval * map.width + (int)(camera.pos.y.dval + camera.dir.y.dval * (moveSpeed + 0.1))] == 0)
+            if(map.data[(int)camera.pos.x.dval * map.width + (int)(camera.pos.y.dval + camera.dir.y.dval * (moveSpeed + 0.1))] < 1)
                 camera.pos.y.dval += camera.dir.y.dval * moveSpeed;
         }
         if(state[SDL_SCANCODE_S]) {
-            if(map.data[(int)(camera.pos.x.dval - camera.dir.x.dval * (moveSpeed + 0.1))* map.width + (int)camera.pos.y.dval] == 0)
+            if(map.data[(int)(camera.pos.x.dval - camera.dir.x.dval * (moveSpeed + 0.1))* map.width + (int)camera.pos.y.dval] < 1)
                 camera.pos.x.dval -= camera.dir.x.dval * moveSpeed;
-            if(map.data[(int)camera.pos.x.dval * map.width + (int)(camera.pos.y.dval - camera.dir.y.dval * (moveSpeed + 0.1))] == 0)
+            if(map.data[(int)camera.pos.x.dval * map.width + (int)(camera.pos.y.dval - camera.dir.y.dval * (moveSpeed + 0.1))] < 1)
                 camera.pos.y.dval -= camera.dir.y.dval * moveSpeed;
         }
         if(state[SDL_SCANCODE_D]) {
-            if(map.data[(int)(camera.pos.x.dval + camera.dir.y.dval * (moveSpeed + 0.1))* map.width + (int)camera.pos.y.dval] == 0)
+            if(map.data[(int)(camera.pos.x.dval + camera.dir.y.dval * (moveSpeed + 0.1))* map.width + (int)camera.pos.y.dval] < 1)
                 camera.pos.x.dval += camera.dir.y.dval * moveSpeed;
-            if(map.data[(int)camera.pos.x.dval * map.width + (int)(camera.pos.y.dval - camera.dir.x.dval * (moveSpeed + 0.1))] == 0)
+            if(map.data[(int)camera.pos.x.dval * map.width + (int)(camera.pos.y.dval - camera.dir.x.dval * (moveSpeed + 0.1))] < 1)
                 camera.pos.y.dval -= camera.dir.x.dval * moveSpeed;
         }
         if(state[SDL_SCANCODE_A]) {
-            if(map.data[(int)(camera.pos.x.dval - camera.dir.y.dval * moveSpeed)* map.width + (int)camera.pos.y.dval] == 0)
+            if(map.data[(int)(camera.pos.x.dval - camera.dir.y.dval * moveSpeed)* map.width + (int)camera.pos.y.dval] < 1)
                 camera.pos.x.dval -= camera.dir.y.dval * moveSpeed;
-            if(map.data[(int)camera.pos.x.dval * map.width + (int)(camera.pos.y.dval + camera.dir.x.dval * moveSpeed)] == 0)
+            if(map.data[(int)camera.pos.x.dval * map.width + (int)(camera.pos.y.dval + camera.dir.x.dval * moveSpeed)] < 1)
                 camera.pos.y.dval += camera.dir.x.dval * moveSpeed;
         }
 
     }
 end:
     SDL_DestroyWindow(sdl_window);
+    SDL_DestroyTexture(sdl_tex);
+    for(t=0; t<map.nb_tex;t++) {
+        if(textures[t] != tex_missing)
+            SDL_FreeSurface(textures[t]);
+    }
+    SDL_FreeSurface(tex_missing);
+    free(textures);
     SDL_DestroyRenderer(sdl_renderer);
     SDL_Quit();
     return 0;
