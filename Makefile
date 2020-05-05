@@ -7,7 +7,7 @@ BUILD_DIR = build
 MKDIR_P = mkdir -p
 
 SDL_OUT	= ray_sdl
-_SDL_OBJS = main_sdl.o raycast.o
+_SDL_OBJS = main.o raycast.o
 SDL_OBJS = $(patsubst %,$(BUILD_DIR)/%,$(_SDL_OBJS))
 
 
