@@ -179,7 +179,8 @@ void render_floor_and_ceiling_to_pixel_arr(
             if(cellY < 0) cellY = 0;
             if(cellY > map->height) cellY=map->height;
 
-            SDL_Surface *floor_tex = tex_missing;
+            SDL_Surface *floor_tex;
+            /* floor_tex = tex_missing; */
             /* get the value of the cell as an absolute because it is negative */
             if(abs(map->data[cellX * map->width + cellY]) > map->nb_tex
                || abs(map->data[cellX * map->width + cellY]) == 0) {
