@@ -32,6 +32,7 @@ typedef union ColorARGB_s {
     } data;
     uint32_t raw;
 } ColorARGB;
+
 typedef struct texture_s {
     unsigned int width, height;
     ColorARGB *data;

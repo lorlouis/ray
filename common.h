@@ -1,9 +1,11 @@
 #ifndef COMMON_H
 #define COMMON_H 1
 
+#include "texture.h"
+
 struct entity_s {
-    int tex_id;
-    double x, y, z, distance;
+    Texture* tex;
+    double x, y, z;
 };
 
 struct worldMap_s {

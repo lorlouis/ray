@@ -80,6 +80,11 @@ int main() {
     map.textures = walls;
     map.nb_tex = 7;
 
+    int nb_entities = 0;
+    struct entity_s *entities;
+    /* TODO free this */
+    entities = malloc(sizeof(struct entity_s*) * nb_entities);
+
     /* TODO free this */
     textures = malloc(sizeof(SDL_Surface*) * map.nb_tex);
 
@@ -168,7 +173,8 @@ int main() {
 
         /* render */
         render_floor_and_ceiling_to_pixel_arr(XSIZE, YSIZE, &camera, pixels, &map);
-        raycast_render_to_pixels_arr(XSIZE, YSIZE, &camera, pixels, &map);
+
+        raycast_render_to_pixels_arr(XSIZE, YSIZE, &camera, pixels, &map, nb_entities, entities);
 
         /* raycast_render(XSIZE, YSIZE, &camera, sdl_renderer, &map); */
         SDL_UpdateTexture(sdl_tex, NULL, pixels, 4*XSIZE);

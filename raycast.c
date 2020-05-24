@@ -75,73 +75,6 @@ void ray_cast(struct camera_s *camera, struct worldMap_s *map, struct ray_s *ray
     ray->result.distance = perpWallDist;
 }
 
-
-void raycast_render_to_pixels_arr(int screen_width, int screen_height, struct camera_s *camera, ColorARGB *pixels,struct worldMap_s *map){
-
-    /* declared in main */
-    extern SDL_Surface *tex_missing;
-    extern SDL_Surface **textures;
-
-    int i;
-    for(i=0; i<screen_width; i++) {
-        struct ray_s ray;
-        ray_init(i, screen_width, camera, &ray);
-
-        ray_cast(camera, map, &ray);
-        /* CAUTION can be larger than screen y size */
-        int lineHeight = (int)(screen_height / ray.result.distance);
-        
-        /* calculate the lowest and highest pixel */
-        int drawStart = -lineHeight / 2 + (screen_height / 2) + camera->angle_v * (screen_height / 2);
-        if(drawStart >= screen_height) drawStart = screen_height;
-        if(drawStart < 0) drawStart = 0;
-        int drawEnd = lineHeight / 2 + (screen_height / 2) + camera->angle_v * (screen_height / 2);
-        if(drawEnd >= screen_height) drawEnd = screen_height;
-        if(drawEnd < 0)drawEnd = 0;
-
-        /* if drawStart and drawEnd are the same dont draw anything */
-        if(drawEnd == drawStart)
-            continue;
-
-        /* load a texture and if it cannot be found link it to missing tex */
-        SDL_Surface *tex;
-        if(*(int*)ray.result.hit > map->nb_tex) {
-            tex = tex_missing;
-        }
-        else {
-            /* shift the walls by one so that wall 1 uses texture 0 */
-            tex = textures[*(int*)ray.result.hit -1];
-        }
-        ColorARGB color;
-        double wallX;
-        if (ray.side) wallX = camera->pos.x.dval + ray.result.distance * ray.dir.x.dval;
-        else wallX = camera->pos.y.dval + ray.result.distance * ray.dir.y.dval;
-        wallX -= floor(wallX);
-
-        int texX = (int)(wallX * (double)tex->w);
-        if(ray.side == 0 && ray.dir.x.dval > 0) texX = tex->w - texX -1;
-        if(ray.side == 1 && ray.dir.y.dval < 0) texX = tex->w - texX -1;
-        
-        double step_t = 1.0 * tex->h / lineHeight;
-
-        double texPos = ((drawStart - screen_height / 2 + lineHeight / 2) - camera->angle_v * (screen_height / 2)) * step_t;
-        int k;
-        for(k=drawStart; k<drawEnd; k++)
-        {
-            int texY = (int)texPos & (tex->h-1);
-            texPos += step_t;
-            color = *(ColorARGB*)(tex->pixels + texY * tex->pitch + texX * sizeof(ColorARGB));
-            if (ray.side == 1)
-                color = (ColorARGB){{
-                    255,
-                    color.data.r != 0 ? color.data.r /2: 0,
-                    color.data.g != 0 ? color.data.g /2: 0,
-                    color.data.b != 0 ? color.data.b /2: 0}};
-            pixels[i + k * screen_width] = color;
-        }
-    }
-}
-
 void render_floor_and_ceiling_to_pixel_arr(
         int screenWidth, int screenHeight, struct camera_s *camera,
         ColorARGB *pixels,struct worldMap_s *map){
@@ -205,4 +138,171 @@ void render_floor_and_ceiling_to_pixel_arr(
             pixels[y * screenWidth + x] = color;
         }
     }
+}
+
+void swap(void** a, void** b) {
+    void* c = *a;
+    *a = *b;
+    *b = c;
+}
+
+int entity_partition (struct entity_s *entities, double *distances, int low, int high)
+{ 
+    int pivot = distances[high];
+    /* smallest distance */
+    int i = (low - 1);
+  
+    int j;
+    for(j = low; j <= high- 1; j++) { 
+        if (distances[j] < pivot) { 
+            /* inc smallest element */
+            i++;
+            swap((void*)(distances + i), (void*)(distances + j));
+            swap((void*)(entities + i), (void*)(entities + j)); 
+        } 
+    } 
+    swap((void*)(distances + i + 1), (void*)(distances + high)); 
+    return (i + 1); 
+}
+
+void entity_sort(struct entity_s *entities, double *distances, int low, int high) {
+    if (low < high) { 
+        /* pi is partitioning index, arr[p] is now 
+           at right place */
+        int part_index = entity_partition(entities, distances, low, high); 
+  
+        /* Separately sort elements before */
+        /* partition and after partition */
+        entity_sort(entities, distances, low, part_index - 1); 
+        entity_sort(entities, distances, part_index + 1, high); 
+    } 
+}
+
+void raycast_render_to_pixels_arr(int screen_width, int screen_height, struct camera_s *camera, ColorARGB *pixels,struct worldMap_s *map
+        , int nb_entities, struct entity_s *entities){
+
+    /* declared in main */
+    extern SDL_Surface *tex_missing;
+    extern SDL_Surface **textures;
+
+    /* fill the z_buffer when casting a ray */
+    double ZBuffer[screen_width];
+
+    int i;
+    for(i=0; i<screen_width; i++) {
+        struct ray_s ray;
+        ray_init(i, screen_width, camera, &ray);
+
+        ray_cast(camera, map, &ray);
+
+        /* set the distance for that line */
+        ZBuffer[i] = ray.result.distance;
+
+        /* CAUTION can be larger than screen y size */
+        int lineHeight = (int)(screen_height / ray.result.distance);
+        
+        /* calculate the lowest and highest pixel */
+        int drawStart = -lineHeight / 2 + (screen_height / 2) + camera->angle_v * (screen_height / 2);
+        if(drawStart >= screen_height) drawStart = screen_height;
+        if(drawStart < 0) drawStart = 0;
+        int drawEnd = lineHeight / 2 + (screen_height / 2) + camera->angle_v * (screen_height / 2);
+        if(drawEnd >= screen_height) drawEnd = screen_height;
+        if(drawEnd < 0)drawEnd = 0;
+
+        /* if drawStart and drawEnd are the same dont draw anything */
+        if(drawEnd == drawStart)
+            continue;
+
+        /* load a texture and if it cannot be found link it to missing tex */
+        SDL_Surface *tex;
+        if(*(int*)ray.result.hit > map->nb_tex) {
+            tex = tex_missing;
+        }
+        else {
+            /* shift the walls by one so that wall 1 uses texture 0 */
+            tex = textures[*(int*)ray.result.hit -1];
+        }
+        ColorARGB color;
+        double wallX;
+        if (ray.side) wallX = camera->pos.x.dval + ray.result.distance * ray.dir.x.dval;
+        else wallX = camera->pos.y.dval + ray.result.distance * ray.dir.y.dval;
+        wallX -= floor(wallX);
+
+        int texX = (int)(wallX * (double)tex->w);
+        if(ray.side == 0 && ray.dir.x.dval > 0) texX = tex->w - texX -1;
+        if(ray.side == 1 && ray.dir.y.dval < 0) texX = tex->w - texX -1;
+        
+        double step_t = 1.0 * tex->h / lineHeight;
+
+        double texPos = ((drawStart - screen_height / 2 + lineHeight / 2) - camera->angle_v * (screen_height / 2)) * step_t;
+        int k;
+        for(k=drawStart; k<drawEnd; k++)
+        {
+            int texY = (int)texPos & (tex->h-1);
+            texPos += step_t;
+            color = *(ColorARGB*)(tex->pixels + texY * tex->pitch + texX * sizeof(ColorARGB));
+            if (ray.side == 1)
+                color = (ColorARGB){{
+                    255,
+                    color.data.r != 0 ? color.data.r /2: 0,
+                    color.data.g != 0 ? color.data.g /2: 0,
+                    color.data.b != 0 ? color.data.b /2: 0}};
+            pixels[i + k * screen_width] = color;
+        }
+    }
+    /* sort the entities */
+    double distances[nb_entities];
+    for(i=0; i< nb_entities; i++) {
+        distances[i] = (
+                (camera->pos.x.dval - (entities+i)->x)
+                * (camera->pos.x.dval - (entities+i)->x)
+                + (camera->pos.y.dval - (entities+i)->y)
+                * (camera->pos.y.dval - (entities+i)->y));
+    }
+    entity_sort(entities, distances, 0, nb_entities-1);
+
+    /* render the sprites */
+    for(i=0; i<nb_entities; i++) {
+        /* translate the entity's position to camera space */
+        double ent_x = (entities + i)->x - camera->pos.x.dval;
+        double ent_y = (entities + i)->y - camera->pos.y.dval;
+        
+        /* transform with inverse camera matrix */
+        double inverse_det = 1.0 / (
+                camera->plane.x.dval * camera->dir.y.dval
+                - camera->dir.x.dval * camera->plane.y.dval);
+        double transform_x = (
+                inverse_det * (camera->dir.y.dval * ent_x
+                - camera->dir.x.dval * ent_y));
+        double transform_y = (
+                inverse_det * (-camera->plane.y.dval * ent_x
+                + camera->plane.x.dval * ent_y));
+
+        int ent_screen_x = (int)((screen_width / 2)
+                * (1 + transform_x / transform_y));
+
+        int ent_height = abs((int)(screen_height / transform_y));
+
+        /* lowest and highest screen space pixels of the sprite */
+        int draw_start_y = -ent_height / 2 + screen_height / 2;
+        if(draw_start_y < 0 ) draw_start_y = 0;
+        if(draw_start_y >= screen_height) draw_start_y = screen_height-1;
+
+        int draw_end_y = ent_height / 2 + screen_height / 2;
+        if(draw_end_y < 0) draw_end_y = 0;
+        if(draw_end_y >= screen_height) draw_end_y = screen_height-1;
+
+        /* leftest and rightest pixels of the spite */
+        int ent_width = abs((int)(screen_height / transform_y));
+        int draw_start_x = -ent_width / 2 + ent_screen_x;
+        if(draw_start_x < 0 ) draw_start_x = 0;
+        /* TODO might be useless */
+        if(draw_start_x >= screen_width) draw_start_x = screen_width-1;
+
+        int draw_end_x = ent_width / 2 + ent_screen_x;
+        /* TODO might be useless */
+        if(draw_end_x < 0) draw_end_x = 0;
+        if(draw_end_x >= screen_width) draw_end_x = screen_width-1;
+    }
+    
 }
