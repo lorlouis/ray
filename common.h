@@ -4,7 +4,7 @@
 #include "texture.h"
 
 struct entity_s {
-    Texture* tex;
+    SDL_Surface* tex;
     double x, y, z;
 };
 

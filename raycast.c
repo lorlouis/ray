@@ -91,7 +91,9 @@ void render_floor_and_ceiling_to_pixel_arr(
         ray1.dir.y.dval = camera->dir.y.dval + camera->plane.y.dval;
 
         /* INFO might need to shift this with mouse view */
-        int screen_y_pos = y - screenHeight / 2 - camera->angle_v * (screenHeight / 2);
+        int screen_y_pos = (y - screenHeight / 2 - camera->angle_v * (screenHeight / 2)) + 1;
+        //int screen_y_pos = ;
+        printf("%d, %d\n", screen_y_pos, y);
         /* changes height */
         float cam_pos_z = 0.5 * screenHeight;
 
@@ -165,17 +167,18 @@ int entity_partition (struct entity_s *entities, double *distances, int low, int
     return (i + 1); 
 }
 
+/* TODO reimplement using qsort from stdlib */
 void entity_sort(struct entity_s *entities, double *distances, int low, int high) {
-    if (low < high) { 
+    if (low < high) {
         /* pi is partitioning index, arr[p] is now 
            at right place */
-        int part_index = entity_partition(entities, distances, low, high); 
-  
+        int part_index = entity_partition(entities, distances, low, high);
+
         /* Separately sort elements before */
         /* partition and after partition */
-        entity_sort(entities, distances, low, part_index - 1); 
-        entity_sort(entities, distances, part_index + 1, high); 
-    } 
+        entity_sort(entities, distances, low, part_index - 1);
+        entity_sort(entities, distances, part_index + 1, high);
+    }
 }
 
 void raycast_render_to_pixels_arr(int screen_width, int screen_height, struct camera_s *camera, ColorARGB *pixels,struct worldMap_s *map
@@ -200,7 +203,7 @@ void raycast_render_to_pixels_arr(int screen_width, int screen_height, struct ca
 
         /* CAUTION can be larger than screen y size */
         int lineHeight = (int)(screen_height / ray.result.distance);
-        
+
         /* calculate the lowest and highest pixel */
         int drawStart = -lineHeight / 2 + (screen_height / 2) + camera->angle_v * (screen_height / 2);
         if(drawStart >= screen_height) drawStart = screen_height;
@@ -231,7 +234,7 @@ void raycast_render_to_pixels_arr(int screen_width, int screen_height, struct ca
         int texX = (int)(wallX * (double)tex->w);
         if(ray.side == 0 && ray.dir.x.dval > 0) texX = tex->w - texX -1;
         if(ray.side == 1 && ray.dir.y.dval < 0) texX = tex->w - texX -1;
-        
+
         double step_t = 1.0 * tex->h / lineHeight;
 
         double texPos = ((drawStart - screen_height / 2 + lineHeight / 2) - camera->angle_v * (screen_height / 2)) * step_t;
@@ -266,7 +269,7 @@ void raycast_render_to_pixels_arr(int screen_width, int screen_height, struct ca
         /* translate the entity's position to camera space */
         double ent_x = (entities + i)->x - camera->pos.x.dval;
         double ent_y = (entities + i)->y - camera->pos.y.dval;
-        
+
         /* transform with inverse camera matrix */
         double inverse_det = 1.0 / (
                 camera->plane.x.dval * camera->dir.y.dval
@@ -303,6 +306,22 @@ void raycast_render_to_pixels_arr(int screen_width, int screen_height, struct ca
         /* TODO might be useless */
         if(draw_end_x < 0) draw_end_x = 0;
         if(draw_end_x >= screen_width) draw_end_x = screen_width-1;
+
+        /* draw the sprite */
+        int stripe;
+        for(stripe = draw_start_x; stripe < draw_end_x; stripe++) {
+            int texX = (int)(256 * (stripe - (-ent_width / 2 + ent_screen_x)) * (entities + i)->tex->w / ent_width) / 256;
+            if(transform_y > 0
+               && stripe > 0
+               && stripe < screen_width
+               && transform_y < ZBuffer[stripe]) {
+                int y;
+                for(y = draw_start_y; y < draw_end_y; y++) {
+                    int d = y * 256 - screen_height * 128 + ent_height * 128;
+                    int tex_y = ((d * (entities + i)->tex->h) / ent_height) / 256;
+                }
+            }
+        }
+
     }
-    
 }

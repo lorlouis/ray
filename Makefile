@@ -1,7 +1,7 @@
 SOURCE	= main.c raycast.c
 HEADER	= common.h raycast.h texture.h
 CC	 = gcc
-FLAGS	 = -std=c89 -ansi -c -Wall -Wextra
+FLAGS	 = -std=c99 -c -Wall -Wextra
 LFLAGS	 = -lX11 -lm -lSDL2 -lSDL2_image
 BUILD_DIR = build
 MKDIR_P = mkdir -p
