@@ -1,0 +1,36 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-std=c99",
+      "-c",
+      "-Wall",
+      "-Wextra",
+      "-I/opt/homebrew/include/SDL2",
+      "-D_THREAD_SAFE",
+      "-o",
+      "build/main.o",
+      "main.c"
+    ],
+    "directory": "/Users/louissven.goulet/Documents/Projects/C/ray",
+    "file": "/Users/louissven.goulet/Documents/Projects/C/ray/main.c",
+    "output": "/Users/louissven.goulet/Documents/Projects/C/ray/build/main.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-std=c99",
+      "-c",
+      "-Wall",
+      "-Wextra",
+      "-I/opt/homebrew/include/SDL2",
+      "-D_THREAD_SAFE",
+      "-o",
+      "build/raycast.o",
+      "raycast.c"
+    ],
+    "directory": "/Users/louissven.goulet/Documents/Projects/C/ray",
+    "file": "/Users/louissven.goulet/Documents/Projects/C/ray/raycast.c",
+    "output": "/Users/louissven.goulet/Documents/Projects/C/ray/build/raycast.o"
+  }
+]

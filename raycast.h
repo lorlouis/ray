@@ -3,7 +3,7 @@
 
 #include "common.h"
 #include "texture.h"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 union num_u {
     double dval;

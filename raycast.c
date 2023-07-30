@@ -69,9 +69,9 @@ void ray_cast(struct camera_s *camera, struct worldMap_s *map, struct ray_s *ray
     /* calculate the distance from the camera plane to prevent fish eye effect */
     double perpWallDist;
     if(ray->side == 0)
-        perpWallDist = (mapX - camera->pos.x.dval + (1 - ray->step.x.ival) / 2) / ray->dir.x.dval;
+        perpWallDist = (mapX - camera->pos.x.dval + (1 - ray->step.x.ival) / 2.0) / ray->dir.x.dval;
     else 
-        perpWallDist = (mapY - camera->pos.y.dval + (1 - ray->step.y.ival) / 2) / ray->dir.y.dval;
+        perpWallDist = (mapY - camera->pos.y.dval + (1 - ray->step.y.ival) / 2.0) / ray->dir.y.dval;
     ray->result.distance = perpWallDist;
 }
 
@@ -83,7 +83,7 @@ void render_floor_and_ceiling_to_pixel_arr(
     extern SDL_Surface **textures;
 
     int y;
-    for(y= screenHeight / 2 + camera->angle_v * (screenHeight / 2); y< screenHeight; y++) {
+    for(y= screenHeight / 2.0 + camera->angle_v * (screenHeight / 2.0); y< screenHeight; y++) {
         struct ray_s ray0, ray1;
         ray0.dir.x.dval = camera->dir.x.dval - camera->plane.x.dval;
         ray0.dir.y.dval = camera->dir.y.dval - camera->plane.y.dval;
@@ -91,7 +91,7 @@ void render_floor_and_ceiling_to_pixel_arr(
         ray1.dir.y.dval = camera->dir.y.dval + camera->plane.y.dval;
 
         /* INFO might need to shift this with mouse view */
-        int screen_y_pos = (y - screenHeight / 2 - camera->angle_v * (screenHeight / 2)) + 1;
+        int screen_y_pos = (y - screenHeight / 2.0 - camera->angle_v * (screenHeight / 2.0)) + 1;
         //int screen_y_pos = ;
         printf("%d, %d\n", screen_y_pos, y);
         /* changes height */
@@ -205,10 +205,10 @@ void raycast_render_to_pixels_arr(int screen_width, int screen_height, struct ca
         int lineHeight = (int)(screen_height / ray.result.distance);
 
         /* calculate the lowest and highest pixel */
-        int drawStart = -lineHeight / 2 + (screen_height / 2) + camera->angle_v * (screen_height / 2);
+        int drawStart = -lineHeight / 2.0 + (screen_height / 2.0) + camera->angle_v * (screen_height / 2.0);
         if(drawStart >= screen_height) drawStart = screen_height;
         if(drawStart < 0) drawStart = 0;
-        int drawEnd = lineHeight / 2 + (screen_height / 2) + camera->angle_v * (screen_height / 2);
+        int drawEnd = lineHeight / 2.0 + (screen_height / 2.0) + camera->angle_v * (screen_height / 2.0);
         if(drawEnd >= screen_height) drawEnd = screen_height;
         if(drawEnd < 0)drawEnd = 0;
 
@@ -237,7 +237,7 @@ void raycast_render_to_pixels_arr(int screen_width, int screen_height, struct ca
 
         double step_t = 1.0 * tex->h / lineHeight;
 
-        double texPos = ((drawStart - screen_height / 2 + lineHeight / 2) - camera->angle_v * (screen_height / 2)) * step_t;
+        double texPos = ((drawStart - screen_height / 2.0 + lineHeight / 2.0) - camera->angle_v * (screen_height / 2.0)) * step_t;
         int k;
         for(k=drawStart; k<drawEnd; k++)
         {
@@ -281,7 +281,7 @@ void raycast_render_to_pixels_arr(int screen_width, int screen_height, struct ca
                 inverse_det * (-camera->plane.y.dval * ent_x
                 + camera->plane.x.dval * ent_y));
 
-        int ent_screen_x = (int)((screen_width / 2)
+        int ent_screen_x = (int)((screen_width / 2.0)
                 * (1 + transform_x / transform_y));
 
         int ent_height = abs((int)(screen_height / transform_y));
@@ -308,6 +308,7 @@ void raycast_render_to_pixels_arr(int screen_width, int screen_height, struct ca
         if(draw_end_x >= screen_width) draw_end_x = screen_width-1;
 
         /* draw the sprite */
+        // TODO(louis) finish drawing sprites at some point
         int stripe;
         for(stripe = draw_start_x; stripe < draw_end_x; stripe++) {
             int texX = (int)(256 * (stripe - (-ent_width / 2 + ent_screen_x)) * (entities + i)->tex->w / ent_width) / 256;

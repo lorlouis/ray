@@ -21,7 +21,7 @@
 #define TRANSPARENT 0
 #define OPAQUE 255
 
-#include "SDL2/SDL.h"
+#include <SDL.h>
 
 #include <stdint.h>
 

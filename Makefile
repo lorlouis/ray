@@ -1,8 +1,8 @@
 SOURCE	= main.c raycast.c
 HEADER	= common.h raycast.h texture.h
-CC	 = gcc
-FLAGS	 = -std=c99 -c -Wall -Wextra
-LFLAGS	 = -lX11 -lm -lSDL2 -lSDL2_image
+CC	 = clang
+FLAGS	 = -std=c99 -c -Wall -Wextra $(shell sdl2-config --cflags)
+LFLAGS	 = -lm $(shell sdl2-config --libs) -lSDL2 -lSDL2_image
 BUILD_DIR = build
 MKDIR_P = mkdir -p
 

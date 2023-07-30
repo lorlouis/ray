@@ -4,8 +4,9 @@
 #include <sys/time.h>
 #include <stdlib.h>
 #include <math.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
+
+#include <SDL.h>
+#include <SDL_image.h>
 
 #include "raycast.h"
 #include "common.h"
